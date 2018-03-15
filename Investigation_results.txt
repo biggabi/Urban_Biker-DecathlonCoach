@@ -1,0 +1,105 @@
+A Decathlon Coachból exportált adatok tökéletesen visszatölthetőek, tehát ez a formátum használható egyéb adatok feltöltésével:
+
+<?xml version="1.0" encoding="utf-8"?>
+<gpx version="1.1" creator="DecathlonCoach"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd"
+  xmlns="http://www.topografix.com/GPX/1/1"
+  xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <trk>
+        <name></name>
+        <trkseg>
+            <trkpt lat="47.39927" lon="19.10353">
+                <ele>99</ele>
+                <time>2018-03-12T07:45:23Z</time>
+[speed:
+		<speed>2.338139</speed>
+]
+                <extensions>
+                    <gpxtpx:TrackPointExtension>
+                        <gpxtpx:hr>86</gpxtpx:hr>
+                    </gpxtpx:TrackPointExtension>
+                </extensions>
+[cadence vszleg:
+                <extensions>
+                    <gpxtpx:TrackPointExtension>
+                        <gpxtpx:cad>86</gpxtpx:hr>
+                    </gpxtpx:TrackPointExtension>
+                </extensions>
+vagy egyszerűen
+                <extensions>
+                    <gpxtpx:TrackPointExtension>
+                        <gpxtpx:hr>86</gpxtpx:hr>
+                        <gpxtpx:cad>86</gpxtpx:hr>
+                    </gpxtpx:TrackPointExtension>
+                </extensions>
+            </trkpt>
+]
+[sok-sok trkpt]
+        </trkseg>
+    </trk>
+</gpx>
+
+A Urban Biker adatai:
+
+	1) GPX adatok jók.
+	2) Melléjük kéne tenni az svg adatokat. A GPX és az SVG adatsorok szinkronban vannak, csak a mintavételi gyakoriság nem ugyanaz a különböző mérési sorokra: a HR 2 mp-enként, a helyadat 1 mp-enként, az ALT 1 mp-enként kerül rögzítésre, tehát van, amit csak össze kell őket a kimeneti GPX-be, de van, ahol trükközni kell. Mondjuk az altitude adat az benne van már eleve a GPX-ben!
+
+Próbáltam a decathlonos gpx fejléchez bemásolni a Urban Biker adatokat -amik máshogy vannak törve, mert egy sorban van egy trkpt (meg ki kellett törölni egy üres trkseg-et is!)-, de a DecathlonCOach így se jeleníti meg a térképet.
+Decás fejléccel is mindenképp kell az extensions mező, anélkül nem veszi be a gpx-et.
+Próbáltam a decás fejléccel, a decás intendationnel beírni az adatokat, de úgy se jeleníti meg a térképet.
+Decás fejléc, decás adatok, de csak 4 trkpt -> ennél se mutatja a térképet.
+	-> attól tartok, h csak akkor mutatná, ha megfelelő hosszú lenne a trk
+Amire még figyelni kéne:
+	a deca kimenetében a lat és lon csak 6 tizedes jegyes
+	0 tizedes jegyes elemek:
+		ele
+		time
+		hr
+
+Amit csinálni kéne:
+	* Urban Biker gpx és duration heart rate svg parse
+	* kimenetben:
+		** deca fejlécet használni, ld. fent
+		** deca gpx szakaszok: trk, name, trkseg trkpt-ok
+		** deca intendation
+		** deca lezárás
+
+Programozási segédlet:
+	https://stackoverflow.com/questions/3207219/how-do-i-list-all-files-of-a-directory
+		-> ha megvannak a fájlok, akkor ki lehet közülük gyűjteni a .gpx és a *duration_heartrate.svg fájlokat, amikkel lehet már dolgozni
+	https://stackoverflow.com/questions/15857818/python-svg-parser
+	http://pythonfiddle.com/parse-gpx-file/
+	gpx write: https://gist.github.com/timabell/8791116
+		#! /usr/bin/env python
+
+		# use the regex module
+		import re
+
+		# read in the file
+		# in_file = open('source').read()
+
+		# or use string as input
+		in_file = '''
+			 <trk>
+			<trkseg>
+			    <trkpt lat="38.8577288" lon="-9.0997973"/>
+			    <trkpt lat="38.8576367" lon="-9.1000557"/>
+			    <trkpt lat="38.8575259" lon="-9.1006374"/>
+			</trkseg>
+		    </trk>
+		'''
+
+		# Find matches using regex
+		matches = re.findall('<trkpt lat="([-0-9\.]+)" lon="([-0-9\.]+)"/>', in_file)
+
+		# make new file lines by combining lat and lon from matches
+		out_lines = [lon + ',' + lat for lat, lon in matches]
+
+		# convert array of strings to single string
+		out_lines = '\n'.join(out_lines)
+
+		print out_lines
+		# output to new file
+		# open('dest', 'w').write(out_lines)	
+
