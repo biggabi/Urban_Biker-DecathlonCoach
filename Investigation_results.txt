@@ -47,7 +47,7 @@ A Urban Biker adatai:
 
 Próbáltam a decathlonos gpx fejléchez bemásolni a Urban Biker adatokat -amik máshogy vannak törve, mert egy sorban van egy trkpt (meg ki kellett törölni egy üres trkseg-et is!)-, de a DecathlonCOach így se jeleníti meg a térképet.
 Decás fejléccel is mindenképp kell az extensions mező, anélkül nem veszi be a gpx-et.
-Próbáltam a decás fejléccel, a decás intendationnel beírni az adatokat, de úgy se jeleníti meg a térképet.
+Próbáltam a decás fejléccel, a decás indentationnel beírni az adatokat, de úgy se jeleníti meg a térképet.
 Decás fejléc, decás adatok, de csak 4 trkpt -> ennél se mutatja a térképet.
 	-> attól tartok, h csak akkor mutatná, ha megfelelő hosszú lenne a trk
 Amire még figyelni kéne:
@@ -62,7 +62,7 @@ Amit csinálni kéne:
 	* kimenetben:
 		** deca fejlécet használni, ld. fent
 		** deca gpx szakaszok: trk, name, trkseg trkpt-ok
-		** deca intendation
+		** deca indentation
 		** deca lezárás
 
 Programozási segédlet:
