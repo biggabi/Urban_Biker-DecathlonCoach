@@ -71,13 +71,14 @@ Programozási segédlet:
 		doc = parse("/home/gabor/Dokumentumok/bicajos/20180313/2018-03-13_15-28_duration-heartrate.svg")
 		polylineelements = doc.getElementsByTagName('polyline')
 		polylineelements[0] <- ebben van az adat "u'<polyline class="data" points=" 12.9944,97.8574 16.9948,92.4995 19.0009," formatumban
+		https://stackoverflow.com/questions/15857818/python-svg-parser
+			https://pypi.python.org/pypi/svgpathtools/#downloads
 		
 	https://stackoverflow.com/questions/3207219/how-do-i-list-all-files-of-a-directory
 		-> ha megvannak a fájlok, akkor ki lehet közülük gyűjteni a .gpx és a *duration_heartrate.svg fájlokat, amikkel lehet már dolgozni
-	https://stackoverflow.com/questions/15857818/python-svg-parser
-		https://pypi.python.org/pypi/svgpathtools/#downloads
         http://www.trackprofiler.com/gpxpy/index.html
             https://github.com/tkrajina/gpxpy/ --> ezt lementettem /home/gabor/gittt/gpxpy-master/gpxpy/ -be, de hogy hogyan kene profin linkelni kulso libet, repot, nem tudom
+
 	gpx write: https://gist.github.com/timabell/8791116
 		#! /usr/bin/env python
 
@@ -110,4 +111,19 @@ Programozási segédlet:
 		print out_lines
 		# output to new file
 		# open('dest', 'w').write(out_lines)	
+
+
+Mivel az svg konverter nem tud, csak 1 data sectiont kezelni, ezért kénytelen vagyok az svg fájlt kitisztítani. Lent a szép megoldáshoz kiindulás, a csúnya megoldás a kódban.
+    # Remove all polyline data section from svg file that is not 'class="data"' or empty.
+	#-> ez minidom, de a minidomban nem lehet torolni
+		#>>> f = codecs.open('workfile', mode='w', encoding='utf-8')
+		#>>> doc = parse("/home/gabor/Dokumentumok/bicajos/20180313/2018-03-13_15-28_duration-heartrate(masolat).svg")
+		#>>> doc.writexml(f)
+		#>>> f.close()
+	#-> https://docs.python.org/3/library/xml.etree.elementtree.html alapjan
+		#import xml.etree.ElementTree
+		#tree = xml.etree.ElementTree.parse("/home/gabor/Dokumentumok/bicajos/20180313/2018-03-13_15-28_duration-heartrate(masolat).svg")
+		#root = tree.getroot()
+		#for child in root: print(child.tag, child.attrib)
+
 

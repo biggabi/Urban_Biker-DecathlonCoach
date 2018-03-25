@@ -3,7 +3,7 @@ from __future__ import print_function
 
 import sys, getopt, os
 
-from Urban_Biker_data_parser import find_UB_input_files_in_input_dir, parse_GPX_data, parse_HR_data
+from Urban_Biker_data_parser import find_UB_input_files_in_input_dir, parse_GPX_data, parse_HR_data, create_DecathlonCoach_gpx_file
 
 
 def main(argv):
@@ -41,13 +41,17 @@ def main(argv):
     print('Altitude input file: ', inputfiles['altitude'])
     print('----')
 
-    track_list = parse_GPX_data(inputfiles['GPX'])
-#    for track in track_list: print(track)
-    print('Lenght of track list:', len(track_list))
+    gpx_track_list = parse_GPX_data(inputfiles['GPX'])
+    print('Lenght of GPX track list:', len(gpx_track_list))
+    print("gpx_track_list[0]",gpx_track_list[0])
+    print("gpx_track_list[1]",gpx_track_list[1])
     print('----')
 
     HR_list = parse_HR_data(inputfiles['HR'])
+    print('Lenght of HR data list:', len(HR_list))
+    print('----')
 
+    create_DecathlonCoach_gpx_file(gpx_track_list, HR_list, inputdir, outputdir)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
