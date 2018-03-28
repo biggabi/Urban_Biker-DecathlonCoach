@@ -4,6 +4,7 @@ from __future__ import print_function
 from os import listdir
 from os import remove as DELETE_FILE
 from os.path import isfile, join, basename, normpath
+from datetime import datetime
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -116,14 +117,37 @@ def create_DecathlonCoach_gpx_file(gpx_track_list, HR_list, inputdir, outputdir)
     f = open(outputdir + "/" + basename(normpath(inputdir)) + "_DecathlonCoach_format.gpx", "w")
     f.write(DECATHLONCOACH_GPX_HEADER)
 
+    max_difference_between_neighbouring_lat_samples = 0
+    time_of_max_lat_diff = ""
+    max_difference_between_neighbouring_lon_samples = 0
+    time_of_max_lon_diff = ""
+    max_difference_between_neighbouring_timestamps = 0
+    time_of_max_time_diff = ""
+    min_difference_between_neighbouring_timestamps = 20
+    time_of_min_time_diff = ""
+    previous_gpx_track_sample = ""
+
     i = 0
     for gpx_track_sample in gpx_track_list:
         f.write("            <trkpt lat=\"" + str("%.5f" % gpx_track_sample["lat"]) + "\" lon=\"" + str("%.5f" % gpx_track_sample["lon"]) + "\">\n")
         f.write("                <ele>"+ str(int(gpx_track_sample["ele"])) +"</ele>\n")
         f.write("                <time>" + str(gpx_track_sample["time"])[0:10] + "T" + str(gpx_track_sample["time"])[11:19] + "Z</time>\n")
-        #f.write("                <speed>" + str(gpx_track_sample["speed"]) + "</speed>\n")
+        f.write("                <speed>" + str(gpx_track_sample["speed"]) + "</speed>\n")
         f.write("                <extensions>\n")
         f.write("                    <gpxtpx:TrackPointExtension>\n")
+        if previous_gpx_track_sample != "":
+            if abs(float(gpx_track_sample["lat"]) - float(previous_gpx_track_sample["lat"])) > max_difference_between_neighbouring_lat_samples:
+                max_difference_between_neighbouring_lat_samples = abs(float(gpx_track_sample["lat"]) - float(previous_gpx_track_sample["lat"]))
+                time_of_max_lat_diff = gpx_track_sample["time"]
+            if abs(float(gpx_track_sample["lon"]) - float(previous_gpx_track_sample["lon"])) > max_difference_between_neighbouring_lon_samples:
+                max_difference_between_neighbouring_lon_samples = abs(float(gpx_track_sample["lon"]) - float(previous_gpx_track_sample["lon"]))
+                time_of_max_lon_diff = gpx_track_sample["time"]
+            if (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds() > max_difference_between_neighbouring_timestamps:
+                max_difference_between_neighbouring_timestamps = (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds()
+                time_of_max_time_diff = gpx_track_sample["time"]
+            if (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds() < min_difference_between_neighbouring_timestamps:
+                min_difference_between_neighbouring_timestamps = (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds()
+                time_of_min_time_diff = gpx_track_sample["time"]
         if i < len(HR_list):
             f.write("                        <gpxtpx:hr>" + str(int(HR_list[i][1])) + "</gpxtpx:hr>\n")
 	else:
@@ -131,6 +155,19 @@ def create_DecathlonCoach_gpx_file(gpx_track_list, HR_list, inputdir, outputdir)
         f.write("                    </gpxtpx:TrackPointExtension>\n")
         f.write("                </extensions>\n")
         f.write("            </trkpt>\n")
+        previous_gpx_track_sample = gpx_track_sample
         i = i+1
 
     f.write(DECATHLONCOACH_GPX_END)
+
+    print("max_difference_between_neighbouring_lat_samples: ", max_difference_between_neighbouring_lat_samples)
+    print("time_of_max_lat_diff: ", time_of_max_lat_diff)
+    print("max_difference_between_neighbouring_lon_samples: ", max_difference_between_neighbouring_lon_samples)
+    print("time_of_max_lon_diff: ", time_of_max_lon_diff)
+    print("max_difference_between_neighbouring_timestamps: ", max_difference_between_neighbouring_timestamps)
+    print("time_of_max_time_diff: ", time_of_max_time_diff)
+    print("min_difference_between_neighbouring_timestamps: ", min_difference_between_neighbouring_timestamps)
+    print("time_of_min_time_diff: ", time_of_min_time_diff)
+
+def str_to_datetime(time_string):
+    return datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
