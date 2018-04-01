@@ -1,22 +1,24 @@
-#!/usr/bin/python
 from __future__ import print_function
 
-from os import listdir
-from os import remove as DELETE_FILE
-from os.path import isfile, join, basename, normpath
-from datetime import datetime
-import re
 import sys
-import xml.etree.ElementTree as ET
+import re
 
-sys.path.append('/home/gabor/gittt/gpxpy-master/gpxpy/')
+from os import listdir
+from os import remove
+from os.path import isfile, join, basename, normpath
+
+from datetime import datetime
+
+from random import randint
+
 import gpxpy.parser as parser
 
 from svgpathtools import svg2paths
 
 from DecathlonCoach_format_gpx_fragments import DECATHLONCOACH_GPX_HEADER, DECATHLONCOACH_GPX_END
 
-def find_UB_input_files_in_input_dir(inputdir):
+
+def find_urban_biker_input_files_in_input_dir(inputdir):
     print('Looking for files in input directory: ', inputdir)
     gpxinputfile = ''
     hrinputfile = ''
@@ -26,10 +28,10 @@ def find_UB_input_files_in_input_dir(inputdir):
     files = [f for f in listdir(inputdir) if isfile(join(inputdir, f))]
 
     for filename in files:
-        gpxinputfile = checkinputfilenames(filename, '.gpx', gpxinputfile, 'GPX')
-        hrinputfile = checkinputfilenames(filename, '_duration-heartrate.svg', hrinputfile, 'HR')
-        speedinputfile = checkinputfilenames(filename, '_duration-speed.svg', speedinputfile, 'SPEED')
-        altitudeinputfile = checkinputfilenames(filename, '_duration-altitude.svg', altitudeinputfile, 'ALTITUDE')
+        gpxinputfile = check_input_filenames(filename, '.gpx', gpxinputfile, 'GPX')
+        hrinputfile = check_input_filenames(filename, '_duration-heartrate.svg', hrinputfile, 'HR')
+        speedinputfile = check_input_filenames(filename, '_duration-speed.svg', speedinputfile, 'SPEED')
+        altitudeinputfile = check_input_filenames(filename, '_duration-altitude.svg', altitudeinputfile, 'ALTITUDE')
 
     if gpxinputfile == '':
         print ('ERROR: No GPX file in input directory.')
@@ -48,7 +50,8 @@ def find_UB_input_files_in_input_dir(inputdir):
 
     return inputfiles
 
-def checkinputfilenames(filename, filenamefragment, inputfile, filetype):
+
+def check_input_filenames(filename, filenamefragment, inputfile, filetype):
     regextocheck = '[-0-9\.]+' + filenamefragment + '$'
     if re.findall(regextocheck, filename):
         if inputfile == '':
@@ -59,7 +62,7 @@ def checkinputfilenames(filename, filenamefragment, inputfile, filetype):
     return inputfile
 
 
-def parse_GPX_data(gpx_file_name):
+def parse_gpx_data(gpx_file_name):
     gpx_file = open(gpx_file_name, 'r')
     gpx_parser = parser.GPXParser( gpx_file )
     gpx = gpx_parser.parse()
@@ -77,14 +80,14 @@ def parse_GPX_data(gpx_file_name):
     return track_list
 
 
-def parse_HR_data(input_hr_file):
+def parse_hr_data(input_hr_file):
     clean_hr_file = input_hr_file + ".tmp"
     create_clean_svg_file(input_hr_file, clean_hr_file)
 
     paths, attributes = svg2paths(clean_hr_file, False, True, False, False)
 
     # Delete clean_hr_file
-    DELETE_FILE(clean_hr_file)    
+    remove(clean_hr_file)    
 
     hr_measurement = []
 
@@ -95,7 +98,7 @@ def parse_HR_data(input_hr_file):
 
 
 def create_clean_svg_file(input_hr_file_name, output_hr_file_name):
-    # Remove all polyline data section from svg file that is not 'class="data"' or empty.
+    # Remove all polyline data sections from svg file that is not 'class="data"' or empty.
     # Let's do it ugly: remove lines with
     #   "\" /><polyline class=\"data\" points=\"" and 
     #   "<polyline class=\"grid\" points=\"" content
@@ -113,7 +116,7 @@ def create_clean_svg_file(input_hr_file_name, output_hr_file_name):
     f.close()
 
 
-def create_DecathlonCoach_gpx_file(gpx_track_list, HR_list, inputdir, outputdir):
+def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir):
     f = open(outputdir + "/" + basename(normpath(inputdir)) + "_DecathlonCoach_format.gpx", "w")
     f.write(DECATHLONCOACH_GPX_HEADER)
 
@@ -128,13 +131,21 @@ def create_DecathlonCoach_gpx_file(gpx_track_list, HR_list, inputdir, outputdir)
     previous_gpx_track_sample = ""
 
     i = 0
-    for gpx_track_sample in gpx_track_list:
+    for gpx_track_sample in gpxtracklist:
         f.write("            <trkpt lat=\"" + str("%.5f" % gpx_track_sample["lat"]) + "\" lon=\"" + str("%.5f" % gpx_track_sample["lon"]) + "\">\n")
         f.write("                <ele>"+ str(int(gpx_track_sample["ele"])) +"</ele>\n")
         f.write("                <time>" + str(gpx_track_sample["time"])[0:10] + "T" + str(gpx_track_sample["time"])[11:19] + "Z</time>\n")
         f.write("                <speed>" + str(gpx_track_sample["speed"]) + "</speed>\n")
         f.write("                <extensions>\n")
         f.write("                    <gpxtpx:TrackPointExtension>\n")
+        if i < len(hrlist):
+            f.write("                        <gpxtpx:hr>" + str(int(hrlist[i][1])) + "</gpxtpx:hr>\n")
+	else:
+            f.write("                        <gpxtpx:hr>" + "0" + "</gpxtpx:hr>\n")
+        f.write("                        <gpxtpx:cad>" + str(float(50+randint(0,60))) + "</gpxtpx:cad>\n")
+        f.write("                    </gpxtpx:TrackPointExtension>\n")
+        f.write("                </extensions>\n")
+        f.write("            </trkpt>\n")
         if previous_gpx_track_sample != "":
             if abs(float(gpx_track_sample["lat"]) - float(previous_gpx_track_sample["lat"])) > max_difference_between_neighbouring_lat_samples:
                 max_difference_between_neighbouring_lat_samples = abs(float(gpx_track_sample["lat"]) - float(previous_gpx_track_sample["lat"]))
@@ -148,13 +159,6 @@ def create_DecathlonCoach_gpx_file(gpx_track_list, HR_list, inputdir, outputdir)
             if (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds() < min_difference_between_neighbouring_timestamps:
                 min_difference_between_neighbouring_timestamps = (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds()
                 time_of_min_time_diff = gpx_track_sample["time"]
-        if i < len(HR_list):
-            f.write("                        <gpxtpx:hr>" + str(int(HR_list[i][1])) + "</gpxtpx:hr>\n")
-	else:
-            f.write("                        <gpxtpx:hr>" + "0" + "</gpxtpx:hr>\n")
-        f.write("                    </gpxtpx:TrackPointExtension>\n")
-        f.write("                </extensions>\n")
-        f.write("            </trkpt>\n")
         previous_gpx_track_sample = gpx_track_sample
         i = i+1
 
@@ -168,6 +172,3 @@ def create_DecathlonCoach_gpx_file(gpx_track_list, HR_list, inputdir, outputdir)
     print("time_of_max_time_diff: ", time_of_max_time_diff)
     print("min_difference_between_neighbouring_timestamps: ", min_difference_between_neighbouring_timestamps)
     print("time_of_min_time_diff: ", time_of_min_time_diff)
-
-def str_to_datetime(time_string):
-    return datetime.strptime(time_string, "%Y-%m-%d %H:%M:%S")
