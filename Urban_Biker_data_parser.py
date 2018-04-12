@@ -116,10 +116,12 @@ def create_clean_svg_file(input_hr_file_name, output_hr_file_name):
     f.close()
 
 
-def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir):
+def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, split, decreased_granularity):
     f = open(outputdir + "/" + basename(normpath(inputdir)) + "_DecathlonCoach_format.gpx", "w")
     f.write(DECATHLONCOACH_GPX_HEADER)
 
+    max_difference_between_neighbouring_elevation_samples = 0
+    time_of_max_elevation_diff = ""
     max_difference_between_neighbouring_lat_samples = 0
     time_of_max_lat_diff = ""
     max_difference_between_neighbouring_lon_samples = 0
@@ -130,40 +132,51 @@ def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir):
     time_of_min_time_diff = ""
     previous_gpx_track_sample = ""
 
+    max_track_length = 1800
+
     i = 0
     for gpx_track_sample in gpxtracklist:
-        f.write("            <trkpt lat=\"" + str("%.5f" % gpx_track_sample["lat"]) + "\" lon=\"" + str("%.5f" % gpx_track_sample["lon"]) + "\">\n")
-        f.write("                <ele>"+ str(int(gpx_track_sample["ele"])) +"</ele>\n")
-        f.write("                <time>" + str(gpx_track_sample["time"])[0:10] + "T" + str(gpx_track_sample["time"])[11:19] + "Z</time>\n")
-        f.write("                <speed>" + str(gpx_track_sample["speed"]) + "</speed>\n")
-        f.write("                <extensions>\n")
-        f.write("                    <gpxtpx:TrackPointExtension>\n")
-        if i < len(hrlist):
-            f.write("                        <gpxtpx:hr>" + str(int(hrlist[i][1])) + "</gpxtpx:hr>\n")
-	else:
-            f.write("                        <gpxtpx:hr>" + "0" + "</gpxtpx:hr>\n")
-        f.write("                        <gpxtpx:cad>" + str(float(50+randint(0,60))) + "</gpxtpx:cad>\n")
-        f.write("                    </gpxtpx:TrackPointExtension>\n")
-        f.write("                </extensions>\n")
-        f.write("            </trkpt>\n")
-        if previous_gpx_track_sample != "":
-            if abs(float(gpx_track_sample["lat"]) - float(previous_gpx_track_sample["lat"])) > max_difference_between_neighbouring_lat_samples:
-                max_difference_between_neighbouring_lat_samples = abs(float(gpx_track_sample["lat"]) - float(previous_gpx_track_sample["lat"]))
-                time_of_max_lat_diff = gpx_track_sample["time"]
-            if abs(float(gpx_track_sample["lon"]) - float(previous_gpx_track_sample["lon"])) > max_difference_between_neighbouring_lon_samples:
-                max_difference_between_neighbouring_lon_samples = abs(float(gpx_track_sample["lon"]) - float(previous_gpx_track_sample["lon"]))
-                time_of_max_lon_diff = gpx_track_sample["time"]
-            if (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds() > max_difference_between_neighbouring_timestamps:
-                max_difference_between_neighbouring_timestamps = (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds()
-                time_of_max_time_diff = gpx_track_sample["time"]
-            if (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds() < min_difference_between_neighbouring_timestamps:
-                min_difference_between_neighbouring_timestamps = (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds()
-                time_of_min_time_diff = gpx_track_sample["time"]
-        previous_gpx_track_sample = gpx_track_sample
+        if (decreased_granularity == False or \
+            (len(gpxtracklist) <= max_track_length) or
+            ( (decreased_granularity == True) and (i&int(len(gpxtracklist)/max_track_length + 1) == 0) ) ):
+
+            f.write("            <trkpt lat=\"" + str("%.5f" % gpx_track_sample["lat"]) + "\" lon=\"" + str("%.5f" % gpx_track_sample["lon"]) + "\">\n")
+            f.write("                <ele>"+ str(int(gpx_track_sample["ele"])) +"</ele>\n")
+            f.write("                <time>" + str(gpx_track_sample["time"])[0:10] + "T" + str(gpx_track_sample["time"])[11:19] + "Z</time>\n")
+            f.write("                <speed>" + str(gpx_track_sample["speed"]) + "</speed>\n")
+            f.write("                <extensions>\n")
+            f.write("                    <gpxtpx:TrackPointExtension>\n")
+            if i < len(hrlist):
+                f.write("                        <gpxtpx:hr>" + str(int(hrlist[i][1])) + "</gpxtpx:hr>\n")
+	    else:
+                f.write("                        <gpxtpx:hr>" + "0" + "</gpxtpx:hr>\n")
+            f.write("                        <gpxtpx:cad>" + str(float(50+randint(0,60))) + "</gpxtpx:cad>\n")
+            f.write("                    </gpxtpx:TrackPointExtension>\n")
+            f.write("                </extensions>\n")
+            f.write("            </trkpt>\n")
+            if previous_gpx_track_sample != "":
+                if abs(float(gpx_track_sample["ele"]) - float(previous_gpx_track_sample["ele"])) > max_difference_between_neighbouring_elevation_samples:
+                    max_difference_between_neighbouring_elevation_samples = abs(float(gpx_track_sample["ele"]) - float(previous_gpx_track_sample["ele"]))
+                    time_of_max_elevation_diff = gpx_track_sample["time"]
+                if abs(float(gpx_track_sample["lat"]) - float(previous_gpx_track_sample["lat"])) > max_difference_between_neighbouring_lat_samples:
+                    max_difference_between_neighbouring_lat_samples = abs(float(gpx_track_sample["lat"]) - float(previous_gpx_track_sample["lat"]))
+                    time_of_max_lat_diff = gpx_track_sample["time"]
+                if abs(float(gpx_track_sample["lon"]) - float(previous_gpx_track_sample["lon"])) > max_difference_between_neighbouring_lon_samples:
+                    max_difference_between_neighbouring_lon_samples = abs(float(gpx_track_sample["lon"]) - float(previous_gpx_track_sample["lon"]))
+                    time_of_max_lon_diff = gpx_track_sample["time"]
+                if (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds() > max_difference_between_neighbouring_timestamps:
+                    max_difference_between_neighbouring_timestamps = (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds()
+                    time_of_max_time_diff = gpx_track_sample["time"]
+                if (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds() < min_difference_between_neighbouring_timestamps:
+                    min_difference_between_neighbouring_timestamps = (gpx_track_sample["time"] - previous_gpx_track_sample["time"]).total_seconds()
+                    time_of_min_time_diff = gpx_track_sample["time"]
+            previous_gpx_track_sample = gpx_track_sample
         i = i+1
 
     f.write(DECATHLONCOACH_GPX_END)
 
+    print("max_difference_between_neighbouring_elevation_samples: ", max_difference_between_neighbouring_elevation_samples)
+    print("time_of_max_elevation_diff: ", time_of_max_elevation_diff)
     print("max_difference_between_neighbouring_lat_samples: ", max_difference_between_neighbouring_lat_samples)
     print("time_of_max_lat_diff: ", time_of_max_lat_diff)
     print("max_difference_between_neighbouring_lon_samples: ", max_difference_between_neighbouring_lon_samples)

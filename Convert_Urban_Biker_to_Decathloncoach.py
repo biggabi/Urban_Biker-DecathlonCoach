@@ -9,15 +9,21 @@ from Urban_Biker_data_parser import find_urban_biker_input_files_in_input_dir, p
 def main(argv):
     inputdir = ''
     outputdir = ''
+    split = False
+    decreased_granularity = False
     try:
-        opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
+        opts, args = getopt.getopt(argv,"dhsi:o:",["ifile=","ofile="])
     except getopt.GetoptError:
-        print('Convert_Urban_Biker_to_Decathloncoach.py -i <directory of input files> -o <directory of output files>')
+        print('Convert_Urban_Biker_to_Decathloncoach.py -i <directory of input files> -o <directory of output files> -d')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('Convert_Urban_Biker_to_Decathloncoach.py -i <inputfile> -o <outputfile>')
+            print('Convert_Urban_Biker_to_Decathloncoach.py -i <directory of input files> -o <directory of output files> -d')
             sys.exit()
+        elif opt in ("-d"):
+            decreased_granularity = True
+        elif opt in ("-s"):
+            split = True
         elif opt in ("-i", "--ifile"):
             inputdir = arg
         elif opt in ("-o", "--ofile"):
@@ -49,7 +55,7 @@ def main(argv):
     print('Lenght of HR data list:', len(hrlist))
     print('----')
 
-    create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir)
+    create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, split, decreased_granularity)
 
 if __name__ == "__main__":
     main(sys.argv[1:])

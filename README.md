@@ -6,5 +6,11 @@ Some packages need to be installed with pip install:
     pip install gpxpy
     pip install svgpathtools
 
+Input parameters
+    -i    input directory, where the track data is stored in a .gpx file, additional data, like heartrate, cadence in .svg files
+    -o    output directory, where the output file(s) that can be loaded into DecathlonCoach are saved
+    -s    s for split, as DecathlonCoach can input only limited lenght of tracks, so in this mode the orginal track is split to sub-tracks that have a maximum lenght of 2000 samples; can be used together with -d
+    -d    d is for decreased granularity in order to have an output file, which is not longer than 2000 samples; can be used together with -s
+
 Limitations:
-    Though cadance data can be saved in the output file of the program and DecathlonCoach does not hang on such file as input, this data is still not shown in DecathlonCoach training sessions. "Geonaute Request # 98977" is opened to clarify it.
+    Though cadance data can be saved in the output file of the program -though at the moment only in a simulated way, as I do not have yet real measured data- and DecathlonCoach does not hang on such file as input, this data is still not shown in DecathlonCoach training sessions. "Geonaute Request # 98977" is opened to clarify it.
