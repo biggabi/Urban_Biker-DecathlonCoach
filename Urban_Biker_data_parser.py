@@ -39,8 +39,7 @@ def find_urban_biker_input_files_in_input_dir(inputdir, cadence_swap_vs_heart_ra
         print ('ERROR: No GPX file in input directory.')
         sys.exit()
     if cadence_swap_vs_heart_rate == False and hrinputfile == '':
-        print ('ERROR: No HR file in input directory.')
-        sys.exit()
+        print ('WARNING: No HR file in input directory. HR data is set to 0.')
     if cadenceinputfile == '':
         print ('ERROR: No cadence file in input directory.')
         sys.exit()
@@ -48,10 +47,18 @@ def find_urban_biker_input_files_in_input_dir(inputdir, cadence_swap_vs_heart_ra
         print ('ERROR: No altitude file in input directory.')
         sys.exit()
 
-    inputfiles = {'GPX':inputdir+'/'+gpxinputfile, 'HR':inputdir+'/'+hrinputfile, 'CAD':inputdir+'/'+cadenceinputfile, 'speed':inputdir+'/'+speedinputfile, 'altitude':inputdir+'/'+altitudeinputfile}
+    inputfiles = {'GPX':concat_inputdir(inputdir,gpxinputfile),
+                  'HR':concat_inputdir(inputdir,hrinputfile),
+                  'CAD':concat_inputdir(inputdir,cadenceinputfile),
+                  'speed':concat_inputdir(inputdir,speedinputfile),
+                  'altitude':concat_inputdir(inputdir,altitudeinputfile)}
 
     return inputfiles
 
+def concat_inputdir(inputdir, inputfile):
+    if inputfile == '':
+        return inputfile
+    return (inputdir+'/'+inputfile)
 
 def check_input_filenames(filename, filenamefragment, inputfile, filetype):
     regextocheck = '[-0-9\.]+' + filenamefragment + '$'

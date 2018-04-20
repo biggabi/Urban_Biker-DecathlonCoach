@@ -15,11 +15,11 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv,"cdhsi:o:",["ifile=","ofile="])
     except getopt.GetoptError:
-        print('Convert_Urban_Biker_to_Decathloncoach.py -i <directory of input files> -o <directory of output files> -d')
+        print('Convert_Urban_Biker_to_Decathloncoach.py -i <directory of input files> -o <directory of output files> -d -c')
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
-            print('Convert_Urban_Biker_to_Decathloncoach.py -i <directory of input files> -o <directory of output files> -d')
+            print('Convert_Urban_Biker_to_Decathloncoach.py -i <directory of input files> -o <directory of output files> -d -c')
             sys.exit()
         elif opt in ("-d"):
             decreased_granularity = True
@@ -56,7 +56,10 @@ def main(argv):
     print('----')
 
     if cadence_swap_vs_heart_rate == False:
-        hrlist = parse_hr_data(inputfiles['HR'])
+        if inputfiles['HR'] == '':
+            hrlist = []
+        else:
+            hrlist = parse_hr_data(inputfiles['HR'])
     else:
         hrlist = parse_hr_data(inputfiles['CAD'])
     print('Lenght of HR data list:', len(hrlist))
