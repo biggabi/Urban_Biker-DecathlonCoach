@@ -18,10 +18,11 @@ from svgpathtools import svg2paths
 from DecathlonCoach_format_gpx_fragments import DECATHLONCOACH_GPX_HEADER, DECATHLONCOACH_GPX_END
 
 
-def find_urban_biker_input_files_in_input_dir(inputdir):
+def find_urban_biker_input_files_in_input_dir(inputdir, cadence_swap_vs_heart_rate):
     print('Looking for files in input directory: ', inputdir)
     gpxinputfile = ''
     hrinputfile = ''
+    cadenceinputfile = ''
     speedinputfile = ''
     altitudeinputfile = ''
 
@@ -30,23 +31,24 @@ def find_urban_biker_input_files_in_input_dir(inputdir):
     for filename in files:
         gpxinputfile = check_input_filenames(filename, '.gpx', gpxinputfile, 'GPX')
         hrinputfile = check_input_filenames(filename, '_duration-heartrate.svg', hrinputfile, 'HR')
+        cadenceinputfile = check_input_filenames(filename, '_duration-cadence.svg', cadenceinputfile, 'CAD')
         speedinputfile = check_input_filenames(filename, '_duration-speed.svg', speedinputfile, 'SPEED')
         altitudeinputfile = check_input_filenames(filename, '_duration-altitude.svg', altitudeinputfile, 'ALTITUDE')
 
     if gpxinputfile == '':
         print ('ERROR: No GPX file in input directory.')
         sys.exit()
-    if hrinputfile == '':
+    if cadence_swap_vs_heart_rate == False and hrinputfile == '':
         print ('ERROR: No HR file in input directory.')
         sys.exit()
-    if speedinputfile == '':
-        print ('ERROR: No speed file in input directory.')
+    if cadenceinputfile == '':
+        print ('ERROR: No cadence file in input directory.')
         sys.exit()
     if altitudeinputfile == '':
         print ('ERROR: No altitude file in input directory.')
         sys.exit()
 
-    inputfiles = {'GPX':inputdir+'/'+gpxinputfile, 'HR':inputdir+'/'+hrinputfile, 'speed':inputdir+'/'+speedinputfile, 'altitude':inputdir+'/'+altitudeinputfile}
+    inputfiles = {'GPX':inputdir+'/'+gpxinputfile, 'HR':inputdir+'/'+hrinputfile, 'CAD':inputdir+'/'+cadenceinputfile, 'speed':inputdir+'/'+speedinputfile, 'altitude':inputdir+'/'+altitudeinputfile}
 
     return inputfiles
 
@@ -132,7 +134,7 @@ def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, sp
     time_of_min_time_diff = ""
     previous_gpx_track_sample = ""
 
-    max_track_length = 1800
+    max_track_length = 2350 # It worked for 20180419-1
 
     i = 0
     for gpx_track_sample in gpxtracklist:

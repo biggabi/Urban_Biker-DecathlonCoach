@@ -11,8 +11,9 @@ def main(argv):
     outputdir = ''
     split = False
     decreased_granularity = False
+    cadence_swap_vs_heart_rate = False
     try:
-        opts, args = getopt.getopt(argv,"dhsi:o:",["ifile=","ofile="])
+        opts, args = getopt.getopt(argv,"cdhsi:o:",["ifile=","ofile="])
     except getopt.GetoptError:
         print('Convert_Urban_Biker_to_Decathloncoach.py -i <directory of input files> -o <directory of output files> -d')
         sys.exit(2)
@@ -24,6 +25,8 @@ def main(argv):
             decreased_granularity = True
         elif opt in ("-s"):
             split = True
+        elif opt in ("-c"):
+            cadence_swap_vs_heart_rate = True
         elif opt in ("-i", "--ifile"):
             inputdir = arg
         elif opt in ("-o", "--ofile"):
@@ -39,10 +42,11 @@ def main(argv):
     print('Output directory is ', outputdir)
     print('----')
 
-    inputfiles = find_urban_biker_input_files_in_input_dir(inputdir)
+    inputfiles = find_urban_biker_input_files_in_input_dir(inputdir, cadence_swap_vs_heart_rate)
     print('----')
     print('GPX input file: ', inputfiles['GPX'])
     print('HR input file: ', inputfiles['HR'])
+    print('Cadence input file: ', inputfiles['CAD'])
     print('Speed input file: ', inputfiles['speed'])
     print('Altitude input file: ', inputfiles['altitude'])
     print('----')
@@ -51,7 +55,10 @@ def main(argv):
     print('Lenght of GPX track list:', len(gpxtracklist))
     print('----')
 
-    hrlist = parse_hr_data(inputfiles['HR'])
+    if cadence_swap_vs_heart_rate == False:
+        hrlist = parse_hr_data(inputfiles['HR'])
+    else:
+        hrlist = parse_hr_data(inputfiles['CAD'])
     print('Lenght of HR data list:', len(hrlist))
     print('----')
 
