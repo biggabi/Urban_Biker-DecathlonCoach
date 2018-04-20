@@ -125,8 +125,13 @@ def create_clean_svg_file(input_hr_file_name, output_hr_file_name):
     f.close()
 
 
-def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, split, decreased_granularity):
-    f = open(outputdir + "/" + basename(normpath(inputdir)) + "_DecathlonCoach_format.gpx", "w")
+def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, split, decreased_granularity, cadence_swap_vs_heart_rate):
+    outputfile = outputdir + "/" + basename(normpath(inputdir)) + "_DecathlonCoach_format"
+    if cadence_swap_vs_heart_rate == True:
+        outputfile = outputfile + "_cadence_hr_swapped"
+    outputfile = outputfile + ".gpx"
+    f = open(outputfile, "w")
+
     f.write(DECATHLONCOACH_GPX_HEADER)
 
     max_difference_between_neighbouring_elevation_samples = 0

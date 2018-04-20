@@ -65,7 +65,7 @@ def main(argv):
     print('Lenght of HR data list:', len(hrlist))
     print('----')
 
-    create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, split, decreased_granularity)
+    create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, split, decreased_granularity, cadence_swap_vs_heart_rate)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
