@@ -146,7 +146,7 @@ def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, sp
     time_of_min_time_diff = ""
     previous_gpx_track_sample = ""
 
-    max_track_length = 2350 # It worked for 20180419-1
+    max_track_length = 2950 # It worked for 20180610-1
 
     i = 0
     for gpx_track_sample in gpxtracklist:
