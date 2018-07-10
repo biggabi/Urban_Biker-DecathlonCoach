@@ -9,7 +9,7 @@ Some packages need to be installed with pip install:
 Input parameters
     -i    input directory, where the track data is stored in a .gpx file, additional data, like heartrate, cadence in .svg files
     -o    output directory, where the output file(s) that can be loaded into DecathlonCoach are saved
-    -s    s for split, as DecathlonCoach can input only limited lenght of tracks, so in this mode the orginal track is split to sub-tracks that have a maximum lenght of 2950 samples; can be used together with -d
+    -s    s for split, as DecathlonCoach can input only limited lenght of tracks, so in this mode the orginal track is split to sub-tracks that have a maximum lenght of 2950 samples; could be used together with -d, though this functionality is not implemented yet
     -d    d is for decreased granularity in order to have an output file, which is not longer than 2950 samples; can be used together with -s
 
 Limitations:
