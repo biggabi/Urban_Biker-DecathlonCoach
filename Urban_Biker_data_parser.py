@@ -64,9 +64,9 @@ def check_input_filenames(filename, filenamefragment, inputfile, filetype):
     regextocheck = '[-0-9\.]+' + filenamefragment + '$'
     if re.findall(regextocheck, filename):
         if inputfile == '':
-	    inputfile = filename
+            inputfile = filename
         else:
-	    print ('ERROR: Multiple', filetype, 'files in input directory.')
+            print ('ERROR: Multiple', filetype, 'files in input directory.')
             sys.exit()
     return inputfile
 
@@ -162,7 +162,7 @@ def create_decathloncoach_gpx_file(gpxtracklist, hrlist, inputdir, outputdir, sp
             f.write("                    <gpxtpx:TrackPointExtension>\n")
             if i < len(hrlist):
                 f.write("                        <gpxtpx:hr>" + str(int(hrlist[i][1])) + "</gpxtpx:hr>\n")
-	    else:
+            else:
                 f.write("                        <gpxtpx:hr>" + "0" + "</gpxtpx:hr>\n")
             f.write("                        <gpxtpx:cad>" + str(float(50+randint(0,60))) + "</gpxtpx:cad>\n")
             f.write("                    </gpxtpx:TrackPointExtension>\n")
